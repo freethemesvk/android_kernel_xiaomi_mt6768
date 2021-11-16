@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo "Do you want to edit Makefile? (y/n):"
+read editmakefile
+echo "Do you want to copy your .config file to arch/arm64/configs/lancelot_defconfig?
+read copyconfig
+
+cd ../
+
 KERNEL_DIR=$(pwd)
 IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz-dtb"
 TANGGAL=$(date +"%Y%m%d-%H")
@@ -12,7 +19,9 @@ export KBUILD_BUILD_HOST=kali
 
 make O=out ARCH=arm64 lancelot_defconfig
 
-make menuconfig O=out
+if [[ $editmakefile == "y" ]]; then
+    make menuconfig O=out
+fi
 
 # Compile plox
 compile() {
@@ -39,8 +48,11 @@ zipping() {
 	cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3
     cd AnyKernel3 || exit 1
     zip -r9 c4md-Kernel-lancelot-ALPHA${TANGGAL}.zip *
-    cd ..
+    cd ../
 }
 compile
 module
 zipping
+
+if [[ copyconfig == "y" ]] then;
+    cp .config arch/arm64/configs/lancelot_defconfig
